@@ -3,6 +3,13 @@ const crypto = require('crypto');
 const SUITS = ['S', 'H', 'D', 'C'];
 const RANKS = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'];
 
+const STATE = {
+    CUT: 'WAITING_FOR_CUT',
+    BET: 'WAITING_FOR_BET',
+    DECISION: 'WAITING_FOR_DECISION',
+    END: 'ROUND_END'
+}
+
 function makeDeck() {
     let cards = [];
     for (let s of SUITS) {
@@ -26,13 +33,20 @@ function cutDeck(deck, amount){
 }
 
 class Game {
-    constructor() {
+    constructor(balance = 1000) {
         this.id = crypto.randomUUID;
-        this.deck = [];
-        this.player = {};  
+        this.balance = balance;
+        this.start;
     }
 
-    start(){}
+    start(){
+        this.deck = shuffle(makeDeck());
+        this.player = [];
+        this.dealer = [];
+        this.betAmount = 0;
+        this.result = null;
+        this.state = STATE.CUT;
+    }
 
     cut(){}
 
