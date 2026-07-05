@@ -144,5 +144,10 @@ class Game {
         this.state = STATE.END;
     }
 
-    nextRound(){}
+    nextRound(){
+        if (this.state !== STATE.END) {
+            throw new GameError('ERR_INVALID_STATE');
+        }
+        this.start();
+    }
 }
