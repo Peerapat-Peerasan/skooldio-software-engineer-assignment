@@ -1,8 +1,10 @@
 import express, { Request, Response } from 'express';
 import { Game, GameError } from './game';
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());
+app.use(cors());
  
 const games: Record<string, Game> = {};
 
