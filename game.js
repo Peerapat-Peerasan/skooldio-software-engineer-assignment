@@ -10,6 +10,13 @@ const STATE = {
     END: 'ROUND_END'
 }
 
+class GameError extends Error {
+    constructor(code) {
+        super(code);
+        this.code = code;
+    }
+}
+
 function makeDeck() {
     let cards = [];
     for (let s of SUITS) {
@@ -48,7 +55,16 @@ class Game {
         this.state = STATE.CUT;
     }
 
-    cut(){}
+    cut(amount){
+        if (this.state !== STATE.CUT) {
+            throw new GameError('ERR_INVALID_STATE');
+        }
+        if (!Number.isInteger(amount) || amount <= 0 || amount >= this.deck.length){
+            throw new GameError('ERR_INVALID_AMOUNT')
+        }
+        this.deck = cutDeck(this.deck, amount);
+        this.state = STATE.BET;
+    }
 
     bet(){}
 
