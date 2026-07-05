@@ -151,3 +151,5 @@ class Game {
         this.start();
     }
 }
+
+module.exports = { Game, GameError, getScore, isPok };
