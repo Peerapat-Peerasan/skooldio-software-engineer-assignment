@@ -53,6 +53,16 @@ function isPok(hand) {
     return hand.length === 2 && (getScore(hand) === 8 || getScore(hand) === 9);
 }
 
+function settle(playerScore, dealerScore, bet) {
+    if (playerScore > dealerScore) {
+        return { outcome: 'win', payout: bet * 2 };
+    }
+    if (playerScore === dealerScore) {
+        return { outcome: 'tie', payout: bet };
+    }
+    return { outcome: 'loss', payout: 0 };
+}
+
 class Game {
     constructor(balance = 1000) {
         this.id = crypto.randomUUID;
@@ -123,7 +133,16 @@ class Game {
         }
     }
 
-    finish(){}
+    finish(){
+        let ps = getScore(this.player);
+        let ds = getScore(this.dealer);
+
+        let {outcome, payout} = settle(ps, ds, this.betAmount);
+
+        this.balance += payout;
+        this.result = {outcome, payout, player_score: ps, dealer_score: ds};
+        this.state = STATE.END;
+    }
 
     nextRound(){}
 }
