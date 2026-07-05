@@ -39,6 +39,20 @@ function cutDeck(deck, amount){
     return deck.slice(n).concat(deck.slice(0, n));
 }
 
+function cardValue(rank) {
+    if (rank === 'A') return 1;
+    if (['J', 'Q', 'K', 10].includes(rank)) return 0;
+    return rank;
+}
+
+function getScore(hand) {
+    return hand.reduce((sum, c) => sum + cardValue(c.rank), 0) % 10;
+}
+ 
+function isPok(hand) {
+    return hand.length === 2 && (getScore(hand) === 8 || getScore(hand) === 9);
+}
+
 class Game {
     constructor(balance = 1000) {
         this.id = crypto.randomUUID;
@@ -60,17 +74,51 @@ class Game {
             throw new GameError('ERR_INVALID_STATE');
         }
         if (!Number.isInteger(amount) || amount <= 0 || amount >= this.deck.length){
-            throw new GameError('ERR_INVALID_AMOUNT')
+            throw new GameError('ERR_INVALID_AMOUNT');
         }
         this.deck = cutDeck(this.deck, amount);
         this.state = STATE.BET;
     }
 
-    bet(){}
+    bet(amount){
+        if (this.state !== STATE.BET) {
+            throw new GameError('ERR_INVALID_STATE');
+        }
+        if (!Number.isInteger(amount) || amount <= 0){
+            throw new GameError('ERR_INVALID_AMOUNT');
+        }
+        if (amount < this.balance){
+            throw new GameError('ERR_INSUFFICIENT_FUNDS');
+        }
+        this.betAmount = amount;
+        this.balance -= amount;
+    
+        this.player = [this.deck.pop(), this.deck.pop()];
+        this.dealer = [this.deck.pop(), this.deck.pop()];
+    
+        if (isPok(this.player) || isPok(this.dealer)) {
+        this.finish();
+        } 
+        else {
+            this.state = STATE.DECISION;
+        }  
+    }
 
-    draw(){}
+    draw(action){
+        if (this.state !== STATE.DECISION) {
+            throw new GameError('ERR_INVALID_STATE');
+        }
+        if (action === 'draw') {
+            this.player.push(this.deck.pop());
+        } else if (action !== 'stay') {
+            throw new GameError('ERR_INVALID_ACTION');
+        }
+        this.dealerTurn();
+        this.finish();
+    }
 
-    dealerTurn(){}
+    dealerTurn(){
+    }
 
     finish(){}
 
