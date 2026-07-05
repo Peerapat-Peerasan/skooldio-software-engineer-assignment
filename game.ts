@@ -28,6 +28,17 @@ interface Result {
     dealer_score: number;
 }
 
+interface GameView {
+    game_id: string;
+    state: State;
+    balance: number;
+    player_hand: Hand;
+    dealer_hand_visible: Hand;
+    player_score: number | null;
+    dealer_score: number | null;
+    winner: 'Player' | 'Dealer' | 'Tie' | null;
+}
+
 type ErrorCode =
     | 'ERR_SESSION_NOT_FOUND'
     | 'ERR_INVALID_STATE'
@@ -183,6 +194,28 @@ class Game {
         throw new GameError('ERR_INVALID_STATE');
         }
         this.start();
+    }
+
+    view(): GameView {
+        let ended = this.state === 'ROUND_END';
+        let winner: GameView['winner'] = null;
+
+        if (ended && this.result) {
+            if (this.result.outcome === 'win') winner = 'Player';
+            else if (this.result.outcome === 'loss') winner = 'Dealer';
+            else winner = 'Tie';
+        }
+    
+        return {
+            game_id: this.id,
+            state: this.state,
+            balance: this.balance,
+            player_hand: this.player,
+            dealer_hand_visible: ended ? this.dealer : [],
+            player_score: this.player.length ? getScore(this.player) : null,
+            dealer_score: ended ? getScore(this.dealer) : null,
+            winner
+        };
     }
 }
 
