@@ -118,6 +118,9 @@ class Game {
     }
 
     dealerTurn(){
+        if (getScore(this.dealer) < 4) {
+            this.dealer.push(this.deck.pop());
+        }
     }
 
     finish(){}
